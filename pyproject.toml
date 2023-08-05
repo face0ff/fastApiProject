@@ -13,6 +13,8 @@ pydantic = {extras = ["email"], version = "^2.1.1"}
 loguru = "^0.7.0"
 sqlalchemy = "^2.0.19"
 dependency-injector = {extras = ["yaml"], version = "^4.41.0"}
+python-dotenv = "^1.0.0"
+psycopg2-binary = "^2.9.7"
 
 
 [build-system]

@@ -3,7 +3,7 @@ from annotated_types import MaxLen, MinLen
 from typing import Annotated
 
 
-class GetUser(BaseModel):
+class User(BaseModel):
     id: int
     username: Annotated[str, MinLen(8), MaxLen(20)]
     email: EmailStr
