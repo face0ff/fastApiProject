@@ -20,17 +20,21 @@ class UserRequest:
 
     def get_by_id(self, user_id: int):
         with self.session_factory() as session:
-            user = session.query(User).filter(id == user_id).first()
+            user = session.query(User).filter(User.id == user_id).first()
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
             return user
 
     def add(self, email: str, username: str, photo_path: str, password: str, is_active: bool = True) -> User:
         with self.session_factory() as session:
-            user = User(
-                email=email, username=username, hashed_password=password, is_active=is_active, photo_path=photo_path
-            )
-            session.add(user)
-            session.commit()
-            session.refresh(user)
-            return user
+            existing_user = session.query(User).filter(User.email == email).scalar()
+            if existing_user:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already used")
+            else:
+                user = User(
+                    email=email, username=username, hashed_password=password, is_active=is_active, photo_path=photo_path
+                )
+                session.add(user)
+                session.commit()
+                session.refresh(user)
+                return user

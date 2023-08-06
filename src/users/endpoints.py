@@ -34,6 +34,7 @@ def get_by_id(
 @router.post("/", status_code=status.HTTP_201_CREATED)
 @inject
 def add(
+        user_data: schemas.User,
         user_service: UserService = Depends(Provide[Container.user_service]),
 ):
-    return user_service.create_user()
+    return user_service.create_user(user_data)

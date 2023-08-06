@@ -20,6 +20,11 @@ class UserService:
     def get_user_by_id(self, user_id: int) -> User:
         return self.requests.get_by_id(user_id)
 
-    def create_user(self) -> User:
-        uid = uuid4()
-        return self.requests.add(email=f"{uid}@email.com", password="pwd", photo_path='123', username='user')
+    def create_user(self, user_data) -> User:
+
+        return self.requests.add(
+            email=user_data.email,
+            username=user_data.username,
+            password=user_data.hashed_password,
+            photo_path=user_data.photo_path,
+        )
