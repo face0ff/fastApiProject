@@ -28,6 +28,7 @@ class User(BaseModel):
 class Login(BaseModel):
     email: EmailStr
     password: str
+    button: bool
 
     class Config:
         orm_mode = True
