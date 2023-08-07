@@ -7,20 +7,17 @@ from src.users.containers import Container
 from src.users import endpoints
 
 
-def create_app() -> FastAPI:
+
+app = FastAPI()
+
+# Include your routes here
+app.include_router(endpoints.router)
+
+@app.on_event("startup")
+async def startup():
     container = Container()
-
     db = container.db()
-    db.create_database()
-
-    app = FastAPI()
-    app.container = container
-    app.include_router(endpoints.router)
-    return app
-
-
-app = create_app()
-
+    await db.create_database()
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", port=8000, host='0.0.0.0', reload=True)

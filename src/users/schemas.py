@@ -22,7 +22,7 @@ class User(BaseModel):
         return value
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Login(BaseModel):
@@ -31,4 +31,4 @@ class Login(BaseModel):
     button: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True

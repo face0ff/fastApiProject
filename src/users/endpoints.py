@@ -12,41 +12,41 @@ router = APIRouter(prefix="/users", tags=['Users'])
 
 @router.get("/")
 @inject
-def get_list(
+async def get_list(
         user_service: UserService = Depends(Provide[Container.user_service]),
 ):
 
-    return user_service.get_users()
+    return await user_service.get_users()
 
 
 @router.get("/{user_id}")
 @inject
-def get_by_id(
+async def get_by_id(
         user_id: int,
         user_service: UserService = Depends(Provide[Container.user_service]),
 ):
     try:
-        return user_service.get_user_by_id(user_id)
+        return await user_service.get_user_by_id(user_id)
     except NameError:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 @inject
-def add(
+async def add(
         user_data: schemas.User,
         user_service: UserService = Depends(Provide[Container.user_service]),
 ):
-    return user_service.create_user(user_data)
+    return await user_service.create_user(user_data)
 
 
 @router.post("/auth", status_code=status.HTTP_200_OK)
 @inject
-def auth(
+async def auth(
         request: Request,
         response: Response,
         auth_data: schemas.Login,
         user_service: UserService = Depends(Provide[Container.user_service]),
 
 ):
-    return user_service.auth_user(auth_data, request, response)
+    return await user_service.auth_user(auth_data, request, response)

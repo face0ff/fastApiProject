@@ -17,29 +17,29 @@ class UserService:
     def __init__(self, user_request: UserRequest) -> None:
         self.requests: UserRequest = user_request
 
-    def get_users(self):
-        return self.requests.get_all()
+    async def get_users(self):
+        return await self.requests.get_all()
 
-    def get_user_by_id(self, user_id: int) -> User:
-        return self.requests.get_by_id(user_id)
+    async def get_user_by_id(self, user_id: int) -> User:
+        return await self.requests.get_by_id(user_id)
 
-    def create_user(self, user_data: dict) -> User:
-        return self.requests.add(user_data)
+    async def create_user(self, user_data: dict) -> User:
+        return await self.requests.add(user_data)
 
-    def auth_user(self, auth_data: dict, request, response) -> User:
+    async def auth_user(self, auth_data: dict, request, response) -> User:
         try:
             token = request.cookies.get("token")
             payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
             email: str = payload.get("sub")
             logger.info('email={}', email)
-            jwt_token = self.create_jwt_token(auth_data)
+            jwt_token = await self.create_jwt_token(auth_data)
             response.set_cookie(key="token", value=jwt_token)
-            return self.requests.get_by_email(email)
+            return await self.requests.get_by_email(email)
         except jwt.PyJWTError:
-            jwt_token = self.create_jwt_token(auth_data)
-            return self.requests.auth(auth_data, response, jwt_token)
+            jwt_token = await self.create_jwt_token(auth_data)
+            return await self.requests.auth(auth_data, response, jwt_token)
 
-    def create_jwt_token(self, auth_data: dict):
+    async def create_jwt_token(self, auth_data: dict):
         if not auth_data.button:
             time = timedelta(seconds=15)
             expiration = datetime.utcnow() + time
