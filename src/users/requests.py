@@ -1,7 +1,7 @@
 """Модуль для работы с репозиториями пользователей."""
-import asyncio
+
 from contextlib import AbstractContextManager
-from fastapi import HTTPException, status, Response
+from fastapi import HTTPException, status
 from typing import Callable, Iterator, ContextManager
 
 from sqlalchemy.orm import Session
@@ -9,9 +9,6 @@ from sqlalchemy.orm import Session
 from src.users.models import User
 
 from passlib.hash import bcrypt_sha256
-
-
-
 
 class UserRequest:
     """
@@ -58,7 +55,6 @@ class UserRequest:
             return user
 
     def add(self, user_data: User) -> User:
-
         """
         Добавление нового пользователя.
 
@@ -71,7 +67,6 @@ class UserRequest:
             if user:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email уже используется")
             else:
-                from src.users.utils import send_registration_email
                 user = User(
                     email=user_data.email, username=user_data.username, hashed_password=hashed_password,
                     is_active=user_data.is_active, photo_path=user_data.photo_path
@@ -79,10 +74,9 @@ class UserRequest:
                 session.add(user)
                 session.commit()
                 session.refresh(user)
-                send_registration_email(user_data.email, user_data.username)
                 return user
 
-    def auth(self, auth_data: User, response: Response, jwt_token) -> User:
+    def auth(self, auth_data: User) -> User:
         """
         Аутентификация пользователя.
 
@@ -94,6 +88,5 @@ class UserRequest:
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
             if bcrypt_sha256.verify(auth_data.password, user.hashed_password):
-                response.set_cookie(key="token", value=jwt_token)
                 return user
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Неправильный пароль")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не авторизован")
