@@ -9,7 +9,7 @@ load_dotenv()
 def send_registration_email(email, username):
     message = Message(
         subject="Registration Confirmation",
-        mail_from=("Your Name", "noreply@example.com"),
+        mail_from=("Your Name", "Суперпупур имейл"),
         text="Thank you for registering with us!",
         html=f"<p>Thank you for registering with us!</p><p>Your registration details:</p><p>Email: {email}</p><p>Username: {username}</p>",
     )
