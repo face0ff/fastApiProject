@@ -18,6 +18,7 @@ psycopg2-binary = "^2.9.7"
 asyncpg = "^0.28.0"
 passlib = "^1.7.4"
 pyjwt = "^2.8.0"
+emails = "^0.6"
 
 
 [build-system]

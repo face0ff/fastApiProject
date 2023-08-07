@@ -34,18 +34,19 @@ def get_by_id(
 @router.post("/", status_code=status.HTTP_201_CREATED)
 @inject
 def add(
-        response: Response,
         user_data: schemas.User,
         user_service: UserService = Depends(Provide[Container.user_service]),
 ):
-    return user_service.create_user(user_data, response)
+    return user_service.create_user(user_data)
 
 
 @router.post("/auth", status_code=status.HTTP_200_OK)
 @inject
 def auth(
+        request: Request,
+        response: Response,
         auth_data: schemas.Login,
         user_service: UserService = Depends(Provide[Container.user_service]),
 
 ):
-    return user_service.auth_user(auth_data)
+    return user_service.auth_user(auth_data, request, response)
