@@ -7,6 +7,7 @@ from src import config_db
 from src.database import Database
 from src.users.requests import UserRequest
 from src.users.services import UserService
+from src.users.utils import send_registration_email
 
 
 class Container(containers.DeclarativeContainer):
@@ -18,6 +19,7 @@ class Container(containers.DeclarativeContainer):
     user_request = providers.Factory(
         UserRequest,
         session_factory=db.provided.session,
+        send_registration_email=send_registration_email,
     )
 
     user_service = providers.Factory(

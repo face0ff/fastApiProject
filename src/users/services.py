@@ -11,7 +11,6 @@ from src.users.requests import UserRequest
 from src.users.models import User
 
 
-
 class UserService:
 
     def __init__(self, user_request: UserRequest) -> None:
@@ -48,3 +47,6 @@ class UserService:
         payload = {"sub": auth_data.email, "exp": expiration}
         jwt_token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm="HS256")
         return jwt_token
+
+    async def update_user(self, user_data: dict) -> User:
+        return await self.requests.update(user_data)

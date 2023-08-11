@@ -1,6 +1,8 @@
 """Модуль для работы с репозиториями пользователей."""
 import asyncio
 from contextlib import AbstractContextManager
+
+import loguru
 from fastapi import HTTPException, status, Response
 from typing import Callable, Iterator, ContextManager
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -11,20 +13,20 @@ from src.users.models import User
 from passlib.hash import bcrypt_sha256
 
 
-
-
 class UserRequest:
     """
     Класс для работы с запросами, связанными с пользователями.
     """
 
-    def __init__(self, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
+    def __init__(self, session_factory: Callable[..., AbstractContextManager[Session]],
+                 send_registration_email) -> None:
         """
         Инициализация класса.
 
         :param session_factory: Функция для создания сессии SQLAlchemy.
         """
         self.session_factory = session_factory
+        self.send_registration_email = send_registration_email
 
     async def get_all(self) -> Iterator[User]:
         """Получение всех пользователей."""
@@ -62,21 +64,14 @@ class UserRequest:
 
     async def add(self, user_data: dict) -> User:
 
-        """
-        Добавление нового пользователя.
-
-        :param user_data: Данные пользователя для добавления.
-        :return: Объект нового пользователя.
-        """
         async with self.session_factory() as session:
             result = await session.execute(select(User).where(User.email == user_data.email))
             user = result.scalar()
-            # user = session.query(User).filter(User.email == user_data.email).first()
             hashed_password = bcrypt_sha256.hash(user_data.password)
             if user:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email уже используется")
             else:
-                from src.users.utils import send_registration_email
+                # from src.users.utils import send_registration_email
                 user = User(
                     email=user_data.email, username=user_data.username, hashed_password=hashed_password,
                     is_active=user_data.is_active, photo_path=user_data.photo_path
@@ -84,17 +79,11 @@ class UserRequest:
                 session.add(user)
                 await session.commit()
                 await session.refresh(user)
-                await send_registration_email(user_data.email, user_data.username)
+                loop = asyncio.get_running_loop()
+                loop.run_in_executor(None, self.send_registration_email,user_data.email, user_data.username)
                 return user
 
-    async def auth(self, auth_data: User, response: Response, jwt_token) -> User:
-        """
-        Аутентификация пользователя.
-
-        :param auth_data: Данные для аутентификации (почта и пароль).
-        :return: Объект аутентифицированного пользователя.
-        """
-
+    async def auth(self, auth_data: dict, response: Response, jwt_token) -> User:
         async with self.session_factory() as session:
             user = await self.get_by_email(auth_data.email)
             if not user:
@@ -103,3 +92,18 @@ class UserRequest:
                 response.set_cookie(key="token", value=jwt_token)
                 return user
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Неправильный пароль")
+
+
+    async def update(self, user_data: dict) -> User:
+        hashed_password = bcrypt_sha256.hash(user_data.password1)
+        async with self.session_factory() as session:
+            user = await self.get_by_id(user_data.id)
+            user.hashed_password = hashed_password if user_data.password1 else user.hashed_password
+            user.username = user_data.username if user_data.username else user.username
+            user.photo_path = user_data.photo_path if user_data.photo_path else user.photo_path
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+            return user
+
+

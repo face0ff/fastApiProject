@@ -6,7 +6,7 @@ from emails import Message
 load_dotenv()
 
 
-async def send_registration_email(email, username):
+def send_registration_email(email, username):
     message = Message(
         subject="Registration Confirmation",
         mail_from=("Your Name", "Суперпупур имейл"),
@@ -15,5 +15,5 @@ async def send_registration_email(email, username):
     )
 
     message.send(to=email, smtp={"host": "smtp.gmail.com", "port": 587, "tls": True,
-                                                  "user": os.getenv('SMTP_USER'),
-                                                  "password": os.getenv('SMTP_PASSWORD')})
+                                 "user": os.getenv('SMTP_USER'),
+                                 "password": os.getenv('SMTP_PASSWORD')})

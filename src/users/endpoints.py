@@ -31,12 +31,14 @@ async def get_by_id(
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/add", status_code=status.HTTP_201_CREATED)
 @inject
 async def add(
         user_data: schemas.User,
         user_service: UserService = Depends(Provide[Container.user_service]),
 ):
+    if user_data.password1 != user_data.password2:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадают")
     return await user_service.create_user(user_data)
 
 
@@ -49,4 +51,16 @@ async def auth(
         user_service: UserService = Depends(Provide[Container.user_service]),
 
 ):
+
     return await user_service.auth_user(auth_data, request, response)
+
+
+@router.put("/profile", status_code=status.HTTP_200_OK)
+@inject
+async def profile(
+        user_data: schemas.Profile,
+        user_service: UserService = Depends(Provide[Container.user_service]),
+):
+    if user_data.password1 != user_data.password2:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадают")
+    return await user_service.update_user(user_data)
