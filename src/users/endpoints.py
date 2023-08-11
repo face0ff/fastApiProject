@@ -1,9 +1,11 @@
 from loguru import logger
 from fastapi import APIRouter, Depends, Response, status, Request, Header
+from fastapi import HTTPException
+
 from dependency_injector.wiring import inject, Provide
 
 from src.users import schemas
-from src.users.containers import Container
+from src.users.containers import UserContainer
 from src.users.services import UserService
 
 
@@ -13,7 +15,7 @@ router = APIRouter(prefix="/users", tags=['Users'])
 @router.get("/")
 @inject
 async def get_list(
-        user_service: UserService = Depends(Provide[Container.user_service]),
+        user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
 
     return await user_service.get_users()
@@ -23,7 +25,7 @@ async def get_list(
 @inject
 async def get_by_id(
         user_id: int,
-        user_service: UserService = Depends(Provide[Container.user_service]),
+        user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
     try:
         return await user_service.get_user_by_id(user_id)
@@ -35,7 +37,7 @@ async def get_by_id(
 @inject
 async def add(
         user_data: schemas.User,
-        user_service: UserService = Depends(Provide[Container.user_service]),
+        user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
     if user_data.password1 != user_data.password2:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадают")
@@ -48,19 +50,28 @@ async def auth(
         request: Request,
         response: Response,
         auth_data: schemas.Login,
-        user_service: UserService = Depends(Provide[Container.user_service]),
+        user_service: UserService = Depends(Provide[UserContainer.user_service]),
 
 ):
 
     return await user_service.auth_user(auth_data, request, response)
 
 
-@router.put("/profile", status_code=status.HTTP_200_OK)
+@router.put("/edit_profile", status_code=status.HTTP_200_OK)
 @inject
-async def profile(
+async def edit_profile(
         user_data: schemas.Profile,
-        user_service: UserService = Depends(Provide[Container.user_service]),
+        user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
     if user_data.password1 != user_data.password2:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадают")
     return await user_service.update_user(user_data)
+
+@router.get("/profile", status_code=status.HTTP_200_OK)
+@inject
+async def profile(
+        request: Request,
+        user_service: UserService = Depends(Provide[UserContainer.user_service]),
+):
+
+    return await user_service.get_profile(request)

@@ -10,7 +10,7 @@ from src.users.services import UserService
 from src.users.utils import send_registration_email
 
 
-class Container(containers.DeclarativeContainer):
+class UserContainer(containers.DeclarativeContainer):
 
     wiring_config = containers.WiringConfiguration(packages=["src.users"])
 

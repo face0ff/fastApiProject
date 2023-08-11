@@ -4,8 +4,7 @@ from contextlib import AbstractContextManager
 
 import loguru
 from fastapi import HTTPException, status, Response
-from typing import Callable, Iterator, ContextManager
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from typing import Callable, Iterator
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from src.users.models import User

@@ -30,7 +30,7 @@ class UserService:
             token = request.cookies.get("token")
             payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
             email: str = payload.get("sub")
-            logger.info('email={}', email)
+            logger.info('email={}', payload)
             jwt_token = await self.create_jwt_token(auth_data)
             response.set_cookie(key="token", value=jwt_token)
             return await self.requests.get_by_email(email)
@@ -50,3 +50,9 @@ class UserService:
 
     async def update_user(self, user_data: dict) -> User:
         return await self.requests.update(user_data)
+
+    async def get_profile(self, request) -> User:
+        token = request.cookies.get("token")
+        payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+        email: str = payload.get("sub")
+        return await self.requests.get_by_email(email)
