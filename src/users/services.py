@@ -52,6 +52,7 @@ class UserService:
         return await self.requests.update(user_data)
 
     async def get_profile(self, request) -> User:
+        logger.info("{}", request)
         token = request.cookies.get("token")
         payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
         email: str = payload.get("sub")

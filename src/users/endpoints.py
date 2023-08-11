@@ -8,7 +8,6 @@ from src.users import schemas
 from src.users.containers import UserContainer
 from src.users.services import UserService
 
-
 router = APIRouter(prefix="/users", tags=['Users'])
 
 
@@ -17,7 +16,6 @@ router = APIRouter(prefix="/users", tags=['Users'])
 async def get_list(
         user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
-
     return await user_service.get_users()
 
 
@@ -53,7 +51,6 @@ async def auth(
         user_service: UserService = Depends(Provide[UserContainer.user_service]),
 
 ):
-
     return await user_service.auth_user(auth_data, request, response)
 
 
@@ -67,11 +64,11 @@ async def edit_profile(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадают")
     return await user_service.update_user(user_data)
 
-@router.get("/profile", status_code=status.HTTP_200_OK)
+
+@router.post("/profile", status_code=status.HTTP_200_OK)
 @inject
 async def profile(
         request: Request,
         user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
-
     return await user_service.get_profile(request)
