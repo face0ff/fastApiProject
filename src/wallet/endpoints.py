@@ -16,10 +16,19 @@ router = APIRouter(prefix="/wallets", tags=['Wallets'])
 async def create(request: Request, wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.create_wallet(request)
 
-# def import_wallet(private_key):
-#     account = Account.from_key(private_key)
-#     logger("Адрес кошелька: {}", account.address)
-@router.get("/import")
+
+@router.get("/import_key")
 @inject
-async def import_key(key, request: Request, wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
+async def import_key(key, request: Request,
+                     wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.import_wallet(request, key)
+
+
+@router.get("/create_transaction")
+@inject
+async def create_transaction(value, wallet_sender, wallet_receiver,
+                             wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
+    return await wallet_service.create_transaction(value, wallet_sender, wallet_receiver)
+
+
+

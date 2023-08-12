@@ -42,3 +42,6 @@ class WalletService:
     async def import_wallet(self, request, key):
         request = await self.wallet_action(request, key)
         return await self.requests.save_wallet(request['wallet'], request['key'], request['user'])
+
+    async def create_transaction(self, value, wallet_sender, wallet_receiver):
+        return await self.requests.save_transaction(value, wallet_sender, wallet_receiver)

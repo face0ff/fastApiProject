@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 
 from src.users.models import User
-from src.wallet.models import Wallet
+from src.wallet.models import Wallet, Transaction
+
 
 
 class WalletRequest:
@@ -32,3 +33,21 @@ class WalletRequest:
             await session.commit()
             await session.refresh(wallet)
             return wallet
+
+    async def save_transaction(self, value, wallet_sender, wallet_receiver):
+        from src.wallet.utils import create_transaction
+        async with self.session_factory() as session:
+            result = await session.execute(select(Wallet).where(Wallet.address == wallet_sender))
+            wallet = result.scalars().first()
+            try:
+                tx_data = await create_transaction(wallet_sender, wallet_receiver, wallet.key, value)
+            except:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
+
+            transaction = Transaction(address_from=wallet_sender, address_to=wallet_receiver, txn_hash=tx_data['tx_hash'], status='Pending', fee=tx_data['fee'], value=value)
+            session.add(transaction)
+            await session.commit()
+            await session.refresh(transaction)
+            return transaction
+
+
