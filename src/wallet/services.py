@@ -45,3 +45,6 @@ class WalletService:
 
     async def create_transaction(self, value, wallet_sender, wallet_receiver):
         return await self.requests.save_transaction(value, wallet_sender, wallet_receiver)
+
+    async def show_balance(self, address):
+        return await self.requests.save_balance(address)

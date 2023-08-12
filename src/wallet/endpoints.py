@@ -30,5 +30,8 @@ async def create_transaction(value, wallet_sender, wallet_receiver,
                              wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.create_transaction(value, wallet_sender, wallet_receiver)
 
-
+@router.get("/balance")
+@inject
+async def balance(address, wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
+    return await wallet_service.show_balance(address)
 
