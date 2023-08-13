@@ -16,3 +16,4 @@ class MainContainer(containers.DeclarativeContainer):
     #
     # user_service = user_container.user_service
     # wallet_service = wallet_container.wallet_service
+    # get_token_from_cookie = providers.Singleton(get_token_from_cookie),

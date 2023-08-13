@@ -48,12 +48,12 @@ class UserService:
         jwt_token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm="HS256")
         return jwt_token
 
-    async def update_user(self, user_data: dict) -> User:
-        return await self.requests.update(user_data)
+    async def update_user(self, user_data: dict, email) -> User:
+        return await self.requests.update(user_data, email)
 
-    async def get_profile(self, request) -> User:
-        logger.info("{}", request)
-        token = request.cookies.get("token")
-        payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
-        email: str = payload.get("sub")
+    async def get_profile(self, email) -> User:
         return await self.requests.get_by_email(email)
+
+    async def logout(self, email, response) -> User:
+        response.delete_cookie(key="token")  # Удалить куки с токеном
+        return {"message": "Пользователь успешно вышел"}

@@ -16,7 +16,7 @@ class WalletService:
     def __init__(self, wallet_request: WalletRequest) -> None:
         self.requests: WalletRequest = wallet_request
 
-    async def wallet_action(self, request, key=None):
+    async def wallet_action(self, email, key=None):
         if key:
             try:
                 wallet = Account.from_key(key)
@@ -25,9 +25,6 @@ class WalletService:
         else:
             key = "0x" + secrets.token_hex(32)
             wallet = Account.from_key(key)
-        token = request.cookies.get("token")
-        payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
-        email: str = payload.get("sub")
         user = await self.requests.get_by_email(email)
         return {
             "wallet": wallet,
@@ -35,16 +32,21 @@ class WalletService:
             "user": user
         }
 
-    async def create_wallet(self, request):
-        request = await self.wallet_action(request)
+    async def create_wallet(self, email):
+        request = await self.wallet_action(email)
         return await self.requests.save_wallet(request['wallet'], request['key'], request['user'])
 
-    async def import_wallet(self, request, key):
-        request = await self.wallet_action(request, key)
+    async def import_wallet(self, email, key):
+        request = await self.wallet_action(email, key)
         return await self.requests.save_wallet(request['wallet'], request['key'], request['user'])
 
     async def create_transaction(self, value, wallet_sender, wallet_receiver):
-        return await self.requests.save_transaction(value, wallet_sender, wallet_receiver)
+        print(await self.requests.save_balance(wallet_sender), value)
+        if await self.requests.save_balance(wallet_sender) >= value:
+            return await self.requests.save_transaction(value, wallet_sender, wallet_receiver)
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Бабки бабки .... бабки!")
+
 
     async def show_balance(self, address):
         return await self.requests.save_balance(address)

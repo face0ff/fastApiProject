@@ -46,7 +46,6 @@ class Login(BaseModel):
 
 
 class Profile(BaseModel):
-    id: int
     username: str
     password1: str
     password2: str

@@ -9,7 +9,7 @@ from sqlalchemy.future import select
 from src.users.models import User
 from src.wallet.config_wallet import api_etherscan_url, api_etherscan
 from src.wallet.models import Wallet, Transaction
-
+from src.wallet.utils import get_balance
 
 
 class WalletRequest:
@@ -29,7 +29,6 @@ class WalletRequest:
         async with self.session_factory() as session:
             existing_wallet = await session.execute(select(Wallet).where(Wallet.key == key))
             balance = await self.save_balance(wallet.address)
-            print(balance)
             if existing_wallet.scalar():
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Этот кошелек уже добавлен")
             wallet = Wallet(address=wallet.address, user_id=user.id, key=key, balance=balance)
@@ -41,39 +40,19 @@ class WalletRequest:
     async def save_transaction(self, value, wallet_sender, wallet_receiver):
         from src.wallet.utils import create_transaction
         async with self.session_factory() as session:
-            result = await session.execute(select(Wallet).where(Wallet.address == wallet_sender))
-            wallet = result.scalars().first()
             try:
+                result = await session.execute(select(Wallet).where(Wallet.address == wallet_sender))
+                wallet = result.scalars().first()
                 tx_data = await create_transaction(wallet_sender, wallet_receiver, wallet.key, value)
             except:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
-
-            transaction = Transaction(address_from=wallet_sender, address_to=wallet_receiver, txn_hash=tx_data['tx_hash'], status='Pending', fee=tx_data['fee'], value=value)
+            transaction = Transaction(address_from=wallet_sender, address_to=wallet_receiver,
+                                      txn_hash=tx_data['tx_hash'], status='Pending', fee=tx_data['fee'], value=value)
             session.add(transaction)
             await session.commit()
             await session.refresh(transaction)
             return transaction
 
     async def save_balance(self, address: str):
-        headers = {
-            "accept": "application/json",
-        }
-        params = {
-
-            "action": "balancemulti",
-            "address": address,
-            "tag": "latest",
-            "apikey": api_etherscan
-        }
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{api_etherscan_url}?module=account",
-                headers=headers,
-                params=params,
-            )
-            if response.status_code == 200:
-                result = response.json()
-                print(result['result'])
-                return result['result'][0]['balance']
-            else:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
+        balance = await get_balance(address)
+        return balance

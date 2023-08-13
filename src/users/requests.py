@@ -93,10 +93,10 @@ class UserRequest:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Неправильный пароль")
 
 
-    async def update(self, user_data: dict) -> User:
+    async def update(self, user_data: dict, email) -> User:
         hashed_password = bcrypt_sha256.hash(user_data.password1)
         async with self.session_factory() as session:
-            user = await self.get_by_id(user_data.id)
+            user = await self.get_by_email(email)
             user.hashed_password = hashed_password if user_data.password1 else user.hashed_password
             user.username = user_data.username if user_data.username else user.username
             user.photo_path = user_data.photo_path if user_data.photo_path else user.photo_path

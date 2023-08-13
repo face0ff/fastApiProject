@@ -1,6 +1,6 @@
 import httpx
 from web3 import Web3
-
+from fastapi import HTTPException, status, Response
 from src.wallet.config_wallet import api_etherscan_url, api_etherscan, api_infura
 
 
@@ -35,10 +35,7 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
     account = wallet_transaction
     private_key = private_key
     receiver = receiver_transaction
-    # value_wei = w3.to_wei(value, 'ether'),  # Сумма в Wei (0.1 ETH)
-    # gas_price = w3.to_wei(await get_gas(), 'wei')  # Цена газа в Wei
     gas_price = await get_gas()
-    print(gas_price)
     nonce = w3.eth.get_transaction_count(account)
 
     transaction = {
@@ -52,9 +49,35 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
     signed_txn = w3.eth.account.sign_transaction(transaction, private_key)
     tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
-    print("Transaction)))))))))>:", tx_hash)
     result = {
         'tx_hash': tx_hash.hex(),
-        'fee': 21000*gas_price
+        'fee': w3.from_wei(int(21000 * gas_price), 'ether')
     }
     return result
+
+async def get_balance(address: str):
+    w3 = Web3(Web3.HTTPProvider(api_infura))
+    headers = {
+        "accept": "application/json",
+    }
+    params = {
+
+        "action": "balancemulti",
+        "address": address,
+        "tag": "latest",
+        "apikey": api_etherscan
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{api_etherscan_url}?module=account",
+            headers=headers,
+            params=params,
+        )
+        if response.status_code == 200:
+            result = response.json()
+            print(result['result'])
+            balance = result['result'][0]['balance']
+            return w3.from_wei(int(balance), 'ether')
+
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
