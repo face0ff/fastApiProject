@@ -37,10 +37,11 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
     receiver = receiver_transaction
     gas_price = await get_gas()
     nonce = w3.eth.get_transaction_count(account)
+    value = w3.to_wei(value, 'ether')
 
     transaction = {
         'to': receiver,
-        'value': w3.to_wei(value, 'ether'),
+        'value': value,
         'gas': 21000,  # Лимит газа для базовой транзакции
         'gasPrice': gas_price,
         'nonce': nonce,
@@ -51,7 +52,8 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
 
     result = {
         'tx_hash': tx_hash.hex(),
-        'fee': w3.from_wei(int(21000 * gas_price), 'ether')
+        'fee': w3.from_wei(int(21000 * gas_price), 'ether'),
+        'value': w3.from_wei(value, 'ether')
     }
     return result
 

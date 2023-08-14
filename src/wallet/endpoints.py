@@ -9,7 +9,7 @@ from src.wallet.services import WalletService
 router = APIRouter(prefix="/wallets", tags=['Wallets'])
 
 
-@router.get("/create")
+@router.post("/create")
 @inject
 async def create(
         email: str = Depends(get_token_from_cookie),
@@ -17,7 +17,7 @@ async def create(
     return await wallet_service.create_wallet(email)
 
 
-@router.get("/import_key")
+@router.post("/import_key")
 @inject
 async def import_key(
         key,
@@ -26,7 +26,7 @@ async def import_key(
     return await wallet_service.import_wallet(email, key)
 
 
-@router.get("/create_transaction")
+@router.post("/create_transaction")
 @inject
 async def create_transaction(
         value: float,

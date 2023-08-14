@@ -21,7 +21,7 @@ async def get_list(
     return await user_service.get_users()
 
 
-@router.get("/{user_id}")
+@router.get("/user/{user_id}")
 @inject
 async def get_by_id(
         user_id: int,
@@ -68,7 +68,7 @@ async def edit_profile(
     return await user_service.update_user(user_data, email)
 
 
-@router.post("/profile", status_code=status.HTTP_200_OK)
+@router.get("/profile", status_code=status.HTTP_200_OK)
 @inject
 async def profile(
         email: str = Depends(get_token_from_cookie),
