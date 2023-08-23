@@ -1,7 +1,10 @@
 import httpx
 from web3 import Web3
-from fastapi import HTTPException, status, Response
+from fastapi import APIRouter, Depends
+from dependency_injector.wiring import inject, Provide
+from src.utils.get_token_from_cookie import get_token_from_cookie
 from src.wallet.config_wallet import api_etherscan_url, api_etherscan, api_infura
+from fastapi import HTTPException, status
 
 
 async def get_gas():
@@ -57,8 +60,13 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
     }
     return result
 
-async def get_balance(address: str):
+
+async def get_balance(address=None):
     w3 = Web3(Web3.HTTPProvider(api_infura))
+
+    # address_list = await wallets()
+    # print(address_list)
+
     headers = {
         "accept": "application/json",
     }

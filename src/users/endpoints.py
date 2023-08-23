@@ -21,7 +21,7 @@ async def get_list(
     return await user_service.get_users()
 
 
-@router.get("/user/{user_id}")
+@router.get("/user/{user_id}/")
 @inject
 async def get_by_id(
         user_id: int,
@@ -33,7 +33,7 @@ async def get_by_id(
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
-@router.post("/add", status_code=status.HTTP_201_CREATED)
+@router.post("/add/", status_code=status.HTTP_201_CREATED)
 @inject
 async def add(
         user_data: schemas.User,
@@ -44,7 +44,7 @@ async def add(
     return await user_service.create_user(user_data)
 
 
-@router.post("/auth", status_code=status.HTTP_200_OK)
+@router.post("/auth/", status_code=status.HTTP_200_OK)
 @inject
 async def auth(
         request: Request,
@@ -56,7 +56,7 @@ async def auth(
     return await user_service.auth_user(auth_data, request, response)
 
 
-@router.put("/edit_profile", status_code=status.HTTP_200_OK)
+@router.put("/edit_profile/", status_code=status.HTTP_200_OK)
 @inject
 async def edit_profile(
         user_data: schemas.Profile,
@@ -68,7 +68,7 @@ async def edit_profile(
     return await user_service.update_user(user_data, email)
 
 
-@router.get("/profile", status_code=status.HTTP_200_OK)
+@router.get("/profile/", status_code=status.HTTP_200_OK)
 @inject
 async def profile(
         email: str = Depends(get_token_from_cookie),
@@ -77,7 +77,7 @@ async def profile(
     return await user_service.get_profile(email)
 
 
-@router.get("/logout", status_code=status.HTTP_200_OK)
+@router.get("/logout/", status_code=status.HTTP_200_OK)
 @inject
 async def logout(
         response: Response,

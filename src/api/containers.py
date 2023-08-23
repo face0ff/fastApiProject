@@ -1,4 +1,6 @@
 from dependency_injector import containers, providers
+
+# from src.celery.containers import CeleryContainer
 from src.users.containers import UserContainer
 from src.wallet.containers import WalletContainer
 from src import config_db
@@ -10,6 +12,8 @@ class MainContainer(containers.DeclarativeContainer):
 
     user_container = providers.Container(UserContainer)
     wallet_container = providers.Container(WalletContainer)
+    # celery_container = providers.Container(CeleryContainer)
+
     #
     # user_request = user_container.user_request
     # wallet_request = wallet_container.wallet_request

@@ -1,12 +1,13 @@
-import httpx
-from fastapi import HTTPException, status, Response
 
+from fastapi import HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends
 from contextlib import AbstractContextManager
 from typing import Callable, Iterator
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 
 from src.users.models import User
+from src.utils.get_token_from_cookie import get_token_from_cookie
 from src.wallet.config_wallet import api_etherscan_url, api_etherscan
 from src.wallet.models import Wallet, Transaction
 from src.wallet.utils import get_balance
@@ -24,6 +25,15 @@ class WalletRequest:
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
             return user
+
+    async def get_all_wallets_by_email(self, email: str):
+        user = await self.get_by_email(email)
+        async with self.session_factory() as session:
+            result = await session.execute(select(Wallet).where(Wallet.user_id == user.id))
+            wallet_list = result.scalars().all()
+            print(wallet_list)
+            wallet_addresses = [wallet.address for wallet in wallet_list]
+            return wallet_addresses
 
     async def save_wallet(self, wallet: int, key: str, user: User):
         async with self.session_factory() as session:

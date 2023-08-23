@@ -47,6 +47,8 @@ class WalletService:
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Бабки бабки .... бабки!")
 
-
     async def show_balance(self, address):
         return await self.requests.save_balance(address)
+
+    async def show_wallets(self, email):
+        return await self.requests.get_all_wallets_by_email(email)
