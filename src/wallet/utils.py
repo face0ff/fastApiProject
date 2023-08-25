@@ -93,4 +93,4 @@ async def get_balance(address=None):
 async def transactions_search(transactions_list):
     async with Redis.from_url("redis://localhost") as redis:
         user_id = await redis.get('id')
-        print(user_id, transactions_list)
+        print(transactions_list)

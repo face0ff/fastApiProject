@@ -5,7 +5,7 @@ from dependency_injector import containers, providers
 
 from src import config_db
 from src.database import Database
-from src.users.requests import UserRequest
+from src.users.repository import UserRequest
 from src.users.services import UserService
 from src.users.utils import send_registration_email
 

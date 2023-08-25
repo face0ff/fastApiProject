@@ -1,6 +1,6 @@
 import secrets
 from eth_account import Account
-from src.wallet.requests import WalletRequest
+from src.wallet.repository import WalletRequest
 
 from fastapi import HTTPException, status
 

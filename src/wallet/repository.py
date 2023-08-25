@@ -1,4 +1,3 @@
-
 from fastapi import HTTPException, status, Response, Request
 from fastapi import APIRouter, Depends
 from contextlib import AbstractContextManager
@@ -9,12 +8,12 @@ from src.users.models import User
 from src.wallet.models import Wallet, Transaction
 
 
-
 class WalletRequest:
 
     def __init__(self, get_balance, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
         self.session_factory = session_factory
         self.get_balance = get_balance
+
     async def get_by_id(self, user_id: int) -> User:
         async with self.session_factory() as session:
             result = await session.execute(select(User).where(User.id == user_id))

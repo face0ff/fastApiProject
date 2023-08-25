@@ -7,7 +7,7 @@ from fastapi import HTTPException, status
 import jwt
 from loguru import logger
 
-from src.users.requests import UserRequest
+from src.users.repository import UserRequest
 from src.users.models import User
 
 

@@ -2,10 +2,11 @@ from dependency_injector import containers, providers
 
 from src import config_db
 from src.database import Database
-from src.users.requests import UserRequest
-from src.wallet.requests import WalletRequest
+from src.users.repository import UserRequest
+from src.wallet.repository import WalletRequest
 from src.wallet.services import WalletService
 from src.wallet.utils import get_balance
+
 
 class WalletContainer(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(packages=["src.wallet"])
