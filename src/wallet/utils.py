@@ -1,11 +1,8 @@
 import httpx
 from web3 import Web3
-from fastapi import APIRouter, Depends
-from dependency_injector.wiring import inject, Provide
-from src.utils.get_token_from_cookie import get_token_from_cookie
 from src.wallet.config_wallet import api_etherscan_url, api_etherscan, api_infura
 from fastapi import HTTPException, status
-
+from redis.asyncio.client import Redis
 
 async def get_gas():
     headers = {
@@ -91,3 +88,9 @@ async def get_balance(address=None):
 
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
+
+
+async def transactions_search(transactions_list):
+    async with Redis.from_url("redis://localhost") as redis:
+        user_id = await redis.get('id')
+        print(user_id, transactions_list)

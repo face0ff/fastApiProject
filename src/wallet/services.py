@@ -1,14 +1,8 @@
 import secrets
-
-from loguru import logger
 from eth_account import Account
-import os
-import jwt
-
-from src.users.requests import UserRequest
 from src.wallet.requests import WalletRequest
 
-from fastapi import HTTPException, status, Response
+from fastapi import HTTPException, status
 
 
 class WalletService:
@@ -51,4 +45,6 @@ class WalletService:
         return await self.requests.save_balance(address)
 
     async def show_wallets(self, email):
-        return await self.requests.get_all_wallets_by_email(email)
+        return await self.requests.get_all_wallets(email)
+
+

@@ -1,7 +1,7 @@
 """Модуль для работы с репозиториями пользователей."""
 import asyncio
 from contextlib import AbstractContextManager
-
+from redis.asyncio.client import Redis
 import loguru
 from fastapi import HTTPException, status, Response
 from typing import Callable, Iterator
@@ -59,6 +59,8 @@ class UserRequest:
             user = result.scalars().first()
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+            async with Redis.from_url("redis://localhost") as redis:
+                await redis.set('id', user.id)
             return user
 
     async def add(self, user_data: dict) -> User:

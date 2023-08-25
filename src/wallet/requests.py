@@ -5,18 +5,23 @@ from contextlib import AbstractContextManager
 from typing import Callable, Iterator
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
-
 from src.users.models import User
-from src.utils.get_token_from_cookie import get_token_from_cookie
-from src.wallet.config_wallet import api_etherscan_url, api_etherscan
 from src.wallet.models import Wallet, Transaction
-from src.wallet.utils import get_balance
+
 
 
 class WalletRequest:
 
-    def __init__(self, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
+    def __init__(self, get_balance, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
         self.session_factory = session_factory
+        self.get_balance = get_balance
+    async def get_by_id(self, user_id: int) -> User:
+        async with self.session_factory() as session:
+            result = await session.execute(select(User).where(User.id == user_id))
+            user = result.scalars().first()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+            return user
 
     async def get_by_email(self, email: str) -> User:
         async with self.session_factory() as session:
@@ -26,8 +31,12 @@ class WalletRequest:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
             return user
 
-    async def get_all_wallets_by_email(self, email: str):
-        user = await self.get_by_email(email)
+    async def get_all_wallets(self, email=None, id=None):
+
+        if email:
+            user = await self.get_by_email(email)
+        else:
+            user = await self.get_by_id(id)
         async with self.session_factory() as session:
             result = await session.execute(select(Wallet).where(Wallet.user_id == user.id))
             wallet_list = result.scalars().all()
@@ -66,5 +75,5 @@ class WalletRequest:
             return transaction
 
     async def save_balance(self, address: str):
-        balance = await get_balance(address)
+        balance = await self.get_balance(address)
         return balance

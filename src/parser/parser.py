@@ -4,7 +4,6 @@ from propan.fastapi import RabbitRouter
 import os
 import dotenv
 
-
 dotenv.load_dotenv()
 
 api_infura = os.getenv('API_INFURA')
@@ -17,14 +16,14 @@ blocks_list = []
 async def get_last_block_number() -> object:
     w3 = Web3(Web3.HTTPProvider(api_infura))
     latest_block_number = w3.eth.block_number
-    full_blocks_list = await create_block_list(latest_block_number)
-    await get_block_from_list(full_blocks_list)
+    # full_blocks_list = await create_block_list(latest_block_number)
+    # transactions_from_block = await get_transaction_from_block(full_blocks_list)
     # async with router.broker as broker:
     #     await broker.publish(f"Hello, Propan! last block == {latest_block_number}", queue="test")
     return latest_block_number
 
 
-async def create_block_list(latest_block_number: int):
+async def create_block_list(latest_block_number):
     if not blocks_list:
         blocks_list.append(latest_block_number)
     else:
@@ -40,33 +39,36 @@ async def create_block_list(latest_block_number: int):
     return blocks_list
 
 
-async def get_block_from_list(full_blocks_list: list):
+async def get_transaction_from_block(full_blocks_list: list):
     w3 = Web3(Web3.HTTPProvider(api_infura))
     print(full_blocks_list)
-
+    transactions_list = []
     for block_number in full_blocks_list[1:]:
         print(block_number)
         block = w3.eth.get_block(int(block_number))
         transactions = block.transactions
-        transactions_list = []
+
         for tx_hash in transactions:
             # tx = w3.eth.get_transaction(tx_hash)
             transactions_list.append(tx_hash.hex())
-        async with router.broker as broker:
-            await broker.publish(f"Block number {block_number} --- transactions_list == {set(transactions_list)}\n",
-                                 queue="test")
 
     if len(blocks_list) > 1:
         last_element = blocks_list[-1]
         blocks_list.clear()
         blocks_list.append(last_element)
 
+    return transactions_list
+
 
 async def main():
     while True:
         latest_block_number = await get_last_block_number()
         full_blocks_list = await create_block_list(latest_block_number)
-        await get_block_from_list(full_blocks_list)
+        transactions_from_block = await get_transaction_from_block(full_blocks_list)
+        async with router.broker as broker:
+            await broker.publish(set(transactions_from_block),
+                                 queue="list_transactions")
+
         await asyncio.sleep(1)
 
 

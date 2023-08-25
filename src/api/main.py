@@ -9,9 +9,12 @@ import src
 from src.api.containers import MainContainer
 # from src.api.rabbit_utils import router
 
+# from src.socketio import sockets
+
 router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')
 
 app = FastAPI(lifespan=router.lifespan_context)
+# app.mount("/", app=sockets.app)
 
 # Include your routes here
 app.include_router(router)

@@ -5,7 +5,7 @@ from src.database import Database
 from src.users.requests import UserRequest
 from src.wallet.requests import WalletRequest
 from src.wallet.services import WalletService
-
+from src.wallet.utils import get_balance
 
 class WalletContainer(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(packages=["src.wallet"])
@@ -15,6 +15,7 @@ class WalletContainer(containers.DeclarativeContainer):
     wallet_request = providers.Factory(
         WalletRequest,
         session_factory=db.provided.session,
+        get_balance=get_balance
     )
 
     wallet_service = providers.Factory(

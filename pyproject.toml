@@ -26,6 +26,9 @@ typing-extensions = "^4.7.1"
 celery = "^5.3.1"
 django-celery-beat = "^2.5.0"
 propan = {extras = ["async-rabbit"], version = "^0.1.5.18"}
+python-socketio = {extras = ["asyncio-client"], version = "^5.8.0"}
+aioredis = "^2.0.1"
+redis = "^5.0.0"
 
 
 [build-system]
