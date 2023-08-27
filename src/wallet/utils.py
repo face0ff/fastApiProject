@@ -6,29 +6,29 @@ from src.wallet.config_wallet import api_etherscan_url, api_etherscan, api_infur
 from fastapi import HTTPException, status
 
 
-async def get_gas():
-    headers = {
-        "accept": "application/json",
-    }
-    params = {
-
-        "action": "eth_gasPrice",
-        "apikey": api_etherscan,
-
-    }
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{api_etherscan_url}?module=proxy",
-            headers=headers,
-            params=params,
-        )
-        if response.status_code == 200:
-            result = response.json()
-            result_decimal = int(result['result'], 16)
-            print(result_decimal)
-            return result_decimal
-        else:
-            print("Request failed:", response.text)
+# async def get_gas():
+#     headers = {
+#         "accept": "application/json",
+#     }
+#     params = {
+#
+#         "action": "eth_gasPrice",
+#         "apikey": api_etherscan,
+#
+#     }
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(
+#             f"{api_etherscan_url}?module=proxy",
+#             headers=headers,
+#             params=params,
+#         )
+#         if response.status_code == 200:
+#             result = response.json()
+#             result_decimal = int(result['result'], 16)
+#             print(result_decimal)
+#             return result_decimal
+#         else:
+#             print("Request failed:", response.text)
 
 
 async def create_transaction(wallet_transaction, receiver_transaction, private_key, value):
@@ -37,7 +37,6 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
     account = wallet_transaction
     private_key = private_key
     receiver = receiver_transaction
-    gas_price = await get_gas()
     nonce = w3.eth.get_transaction_count(account)
     value = w3.to_wei(value, 'ether')
 
@@ -54,7 +53,7 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
 
     result = {
         'tx_hash': tx_hash.hex(),
-        'fee': w3.from_wei(int(21000 * gas_price), 'ether'),
+        'fee': w3.from_wei(int(21000 * w3.eth.gas_price), 'ether'),
         'value': w3.from_wei(value, 'ether')
     }
     return result

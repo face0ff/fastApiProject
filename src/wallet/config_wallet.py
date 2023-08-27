@@ -1,5 +1,6 @@
 import os
 import dotenv
+from propan.fastapi import RabbitRouter
 
 dotenv.load_dotenv()
 
@@ -15,3 +16,5 @@ api_moralis_url = 'https://deep-index.moralis.io/api/v2'
 api_etherscan_url = 'https://api-sepolia.etherscan.io/api'
 
 api_infura = f"https://sepolia.infura.io/v3/{api_infura}"
+
+router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')

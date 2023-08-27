@@ -3,9 +3,8 @@ import logging
 
 from propan.fastapi import RabbitRouter
 
+from src.wallet.config_wallet import router
 from src.wallet.tasks import get_wallet_search_task, get_transaction_search_task, save_transaction_task
-
-router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')
 
 
 @router.broker.handle(queue="list_transactions")
@@ -15,11 +14,13 @@ async def list_transactions_handler(body):
 
 @router.broker.handle(queue="block")
 async def list_block_handler(body):
+    print(body)
     get_transaction_search_task.apply_async(args=[body], queue='transaction')
 
 
 @router.broker.handle(queue="transaction_save")
 async def result_handler(body):
+    print(body)
     save_transaction_task.apply_async(args=[body], queue='save_result')
 
 

@@ -51,3 +51,4 @@ class WalletService:
         return await self.requests.get_all_wallets()
 
 
+

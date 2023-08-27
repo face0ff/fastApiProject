@@ -82,7 +82,6 @@ class WalletRequest:
                     tx_data = await create_transaction(address_from, address_to, wallet.key, value)
                 except:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
-                print('111111111111111111111111111110', type(value), type(tx_data['fee']))
                 transaction = Transaction(address_from=address_from, address_to=address_to,
                                           txn_hash=tx_data['tx_hash'], status='Pending', fee=tx_data['fee'],
                                           value=tx_data['value'])

@@ -1,9 +1,7 @@
 import httpx
-from src.wallet.config_wallet import api_moralis, api_moralis_url, api_infura
-from propan.fastapi import RabbitRouter
+from src.wallet.config_wallet import api_moralis, api_moralis_url, api_infura, router
 from web3 import Web3
 
-router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')
 
 async def transaction_search(body: dict):
     block = body['block']

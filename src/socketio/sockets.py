@@ -1,5 +1,5 @@
 import asyncio
-from propan.fastapi import RabbitRouter
+from propan import RabbitRouter
 import uvicorn
 import socketio
 import aio_pika
@@ -17,6 +17,8 @@ app = socketio.ASGIApp(
     socketio_path='sockets')
 
 
+
+
 # async def send_token_to_rabbit(token):
 #     connection = await aio_pika.connect_robust("amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost")
 #     async with connection:
@@ -26,7 +28,7 @@ app = socketio.ASGIApp(
 #             routing_key="token"
 #         )
 
-@router.broker.handle(queue="block")
+@router.handle(queue="block")
 async def list_block_handler(body):
     print(body)
 
@@ -44,5 +46,5 @@ def disconnect(sid):
 
 
 if __name__ == '__main__':
-    asyncio.run(router.broker.start())
+
     uvicorn.run("sockets:app", port=8001, host='127.0.0.1', reload=True)

@@ -1,17 +1,13 @@
 import json
-import logging
-
 from redis.asyncio.client import Redis
 import loguru
 from web3 import Web3
-from src.wallet.config_wallet import api_etherscan_url, api_etherscan, api_infura
-from fastapi import HTTPException, status
-from propan.fastapi import RabbitRouter
+from src.wallet.config_wallet import api_infura, router
 from src.wallet.containers import WalletContainer
-from src.wallet.repository import WalletRequest
 
 
-router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')
+
+
 
 
 
