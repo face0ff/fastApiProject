@@ -17,4 +17,7 @@ socket:
 	python src/socketio/sockets.py
 client:
 	python src/wallet/consumer.py
+celery:
+	celery -A src.celery.celery worker --loglevel=info -Q get_wallet_list,wallet,save_result,transaction -B
+
 

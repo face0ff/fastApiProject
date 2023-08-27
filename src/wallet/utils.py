@@ -1,8 +1,10 @@
 import httpx
+import loguru
+import web3
 from web3 import Web3
 from src.wallet.config_wallet import api_etherscan_url, api_etherscan, api_infura
 from fastapi import HTTPException, status
-from redis.asyncio.client import Redis
+
 
 async def get_gas():
     headers = {
@@ -43,7 +45,7 @@ async def create_transaction(wallet_transaction, receiver_transaction, private_k
         'to': receiver,
         'value': value,
         'gas': 21000,  # Лимит газа для базовой транзакции
-        'gasPrice': gas_price,
+        'gasPrice': w3.eth.gas_price,
         'nonce': nonce,
     }
 
@@ -88,9 +90,3 @@ async def get_balance(address=None):
 
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
-
-
-async def transactions_search(transactions_list):
-    async with Redis.from_url("redis://localhost") as redis:
-        user_id = await redis.get('id')
-        print(transactions_list)

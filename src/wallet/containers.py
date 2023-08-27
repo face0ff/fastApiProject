@@ -23,3 +23,4 @@ class WalletContainer(containers.DeclarativeContainer):
         WalletService,
         wallet_request=wallet_request
     )
+

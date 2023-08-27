@@ -30,14 +30,21 @@ class WalletRequest:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
             return user
 
-    async def get_all_wallets(self, email=None, id=None):
+    async def get_all_user_wallets(self, email=None):
 
-        if email:
-            user = await self.get_by_email(email)
-        else:
-            user = await self.get_by_id(id)
+        user = await self.get_by_email(email)
+
         async with self.session_factory() as session:
             result = await session.execute(select(Wallet).where(Wallet.user_id == user.id))
+            wallet_list = result.scalars().all()
+            print(wallet_list)
+            wallet_addresses = [wallet.address for wallet in wallet_list]
+            return wallet_addresses
+
+    async def get_all_wallets(self):
+
+        async with self.session_factory() as session:
+            result = await session.execute(select(Wallet))
             wallet_list = result.scalars().all()
             print(wallet_list)
             wallet_addresses = [wallet.address for wallet in wallet_list]
@@ -55,19 +62,30 @@ class WalletRequest:
             await session.refresh(wallet)
             return wallet
 
-    async def save_transaction(self, value, wallet_sender, wallet_receiver):
+    async def save_transaction(self, value, address_from, address_to, txn_hash=None, fee=None):
+
         from src.wallet.utils import create_transaction
         async with self.session_factory() as session:
-            try:
-                result = await session.execute(select(Wallet).where(Wallet.address == wallet_sender))
-                wallet = result.scalars().first()
-                tx_data = await create_transaction(wallet_sender, wallet_receiver, wallet.key, value)
-            except:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
-            print('111111111111111111111111111110', type(value), type(tx_data['fee']))
-            transaction = Transaction(address_from=wallet_sender, address_to=wallet_receiver,
-                                      txn_hash=tx_data['tx_hash'], status='Pending', fee=tx_data['fee'],
-                                      value=tx_data['value'])
+            if txn_hash:
+                result = await session.execute(select(Transaction).where(Transaction.txn_hash == txn_hash))
+                transaction = result.scalars().first()
+                if not transaction:
+                    transaction = Transaction(address_from=address_from, address_to=address_to,
+                                              txn_hash=txn_hash, status='Success', fee=fee,
+                                              value=value)
+                else:
+                    transaction.status = "Success"
+            else:
+                try:
+                    result = await session.execute(select(Wallet).where(Wallet.address == address_from))
+                    wallet = result.scalars().first()
+                    tx_data = await create_transaction(address_from, address_to, wallet.key, value)
+                except:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проверьте все что вы ввели")
+                print('111111111111111111111111111110', type(value), type(tx_data['fee']))
+                transaction = Transaction(address_from=address_from, address_to=address_to,
+                                          txn_hash=tx_data['tx_hash'], status='Pending', fee=tx_data['fee'],
+                                          value=tx_data['value'])
             session.add(transaction)
             await session.commit()
             await session.refresh(transaction)
@@ -76,3 +94,5 @@ class WalletRequest:
     async def save_balance(self, address: str):
         balance = await self.get_balance(address)
         return balance
+
+

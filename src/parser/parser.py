@@ -65,11 +65,15 @@ async def main():
         latest_block_number = await get_last_block_number()
         full_blocks_list = await create_block_list(latest_block_number)
         transactions_from_block = await get_transaction_from_block(full_blocks_list)
+        body = {
+            'transactions_from_block': transactions_from_block,
+            'latest_block_number': latest_block_number
+        }
         async with router.broker as broker:
-            await broker.publish(set(transactions_from_block),
+            await broker.publish(body,
                                  queue="list_transactions")
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
 
 if __name__ == '__main__':

@@ -45,6 +45,9 @@ class WalletService:
         return await self.requests.save_balance(address)
 
     async def show_wallets(self, email):
-        return await self.requests.get_all_wallets(email)
+        return await self.requests.get_all_user_wallets(email)
+
+    async def show_all_wallets(self):
+        return await self.requests.get_all_wallets()
 
 
