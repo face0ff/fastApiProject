@@ -85,14 +85,14 @@ class UserRequest:
                 return user
 
     async def auth(self, auth_data: dict, response: Response, jwt_token) -> User:
-        async with self.session_factory() as session:
-            user = await self.get_by_email(auth_data.email)
-            if not user:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
-            if bcrypt_sha256.verify(auth_data.password, user.hashed_password):
-                response.set_cookie(key="token", value=jwt_token)
-                return user
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Неправильный пароль")
+
+        user = await self.get_by_email(auth_data.email)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+        if bcrypt_sha256.verify(auth_data.password, user.hashed_password):
+            response.set_cookie(key="token", value=jwt_token)
+            return user
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Неправильный пароль")
 
 
     async def update(self, user_data: dict, email) -> User:

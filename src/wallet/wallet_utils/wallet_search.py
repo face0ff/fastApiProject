@@ -48,6 +48,7 @@ async def wallets_search(body):
     matching_addresses = [address for address in unique_addresses if str(address) in wallet_list]
 
     if matching_addresses:
+
         for address in matching_addresses:
             loguru.logger.critical(f'BLOCK={block_number}, ADDRESS={address}')
             async with router.broker as broker:

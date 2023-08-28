@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from src.users.models import User
 from src.wallet.models import Wallet, Transaction
+from sqlalchemy import func
 
 
 class WalletRequest:
@@ -67,6 +68,8 @@ class WalletRequest:
         from src.wallet.utils import create_transaction
         async with self.session_factory() as session:
             if txn_hash:
+                await self.change_balance(address_from)
+                await self.change_balance(address_to)
                 result = await session.execute(select(Transaction).where(Transaction.txn_hash == txn_hash))
                 transaction = result.scalars().first()
                 if not transaction:
@@ -94,4 +97,18 @@ class WalletRequest:
         balance = await self.get_balance(address)
         return balance
 
+    async def change_balance(self, address: str):
+        async with self.session_factory() as session:
+            lowercase_address = address.lower()
+            existing_wallet = await session.execute(
+                select(Wallet).where(func.lower(Wallet.address) == lowercase_address))
+
+            existing_wallet_instance = existing_wallet.scalar()
+            if existing_wallet_instance:
+                balance = await self.save_balance(address)
+                existing_wallet_instance.balance = balance
+                await session.commit()
+                return balance
+            else:
+                return None
 
