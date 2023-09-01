@@ -23,9 +23,11 @@ class Order(Base):
     id = Column(Integer, primary_key=True)
     status = Column(String, default='New')
     date = Column(DateTime, default=func.now())
-    type = Column(Boolean, default=False)
+    refund = Column(Boolean, default=False)
     product_id = Column(Integer, ForeignKey("products.id"))
     transaction_id = Column(Integer, ForeignKey("transactions.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
 
+    user = relationship("User", back_populates="order")
     product = relationship("Product", back_populates="order")
     transaction = relationship("Transaction", back_populates="order")

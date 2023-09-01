@@ -1,7 +1,7 @@
 import asyncio
 import loguru
 from src.celery.celery import app
-from src.wallet.wallet_utils import transaction_search, transaction_save
+from src.wallet.wallet_utils import transaction_search, transaction_save, wallet_search
 
 
 @app.task()

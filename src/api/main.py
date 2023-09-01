@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.INFO)
 
 router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')
 
-app = FastAPI(lifespan=router.lifespan_context)
+# app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 # app.mount("/", app=sockets.app)
 
 # Include your routes here
@@ -23,6 +24,7 @@ app.include_router(src.ibay.endpoints.router)
 
 @app.on_event("startup")
 async def startup():
+
     container = MainContainer()
     db = container.db()
     await db.create_database()

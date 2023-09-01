@@ -5,7 +5,7 @@ from dependency_injector.wiring import inject, Provide
 
 from src.ibay import schemas
 from src.ibay.containers import ProductContainer
-from src.ibay.services import ProductService
+from src.ibay.services import ProductService, OrderService
 from src.utils.get_token_from_cookie import get_token_from_cookie
 
 router = APIRouter(prefix="/products", tags=['Products'])
@@ -47,3 +47,10 @@ async def add(
     return await product_service.create_product(product_data)
 
 
+@router.get("/order")
+@inject
+async def get_list(
+        email: str = Depends(get_token_from_cookie),
+        order_service: OrderService = Depends(Provide[ProductContainer.order_service]),
+):
+    return await order_service.get_orders(email)

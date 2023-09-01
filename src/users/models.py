@@ -15,5 +15,6 @@ class User(Base):
     photo_path = Column(String, nullable=True)
 
     wallet = relationship("Wallet", back_populates="user")
+    order = relationship("Order", back_populates="user")
 
 
