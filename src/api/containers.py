@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 
+from src.ibay.containers import ProductContainer
 # from src.celery.containers import CeleryContainer
 from src.users.containers import UserContainer
 from src.wallet.containers import WalletContainer
@@ -8,10 +9,14 @@ from src.database import Database
 
 
 class MainContainer(containers.DeclarativeContainer):
+
     db = providers.Singleton(Database, db_url=config_db.db_url)
+
+    # wiring_config = containers.WiringConfiguration(packages=["src.users", "src.wallet"])
 
     user_container = providers.Container(UserContainer)
     wallet_container = providers.Container(WalletContainer)
+    product_container = providers.Container(ProductContainer)
     # celery_container = providers.Container(CeleryContainer)
 
     #

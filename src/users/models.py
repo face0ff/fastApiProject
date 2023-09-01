@@ -8,9 +8,9 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    email = Column(String, unique=True, nullable=True)
-    username = Column(String, nullable=True)
-    hashed_password = Column(String, nullable=True)
+    email = Column(String, unique=True)
+    username = Column(String)
+    hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     photo_path = Column(String, nullable=True)
 

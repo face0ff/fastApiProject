@@ -1,19 +1,17 @@
-from fastapi import HTTPException, status, Response, Request
-from fastapi import APIRouter, Depends
+from fastapi import HTTPException, status
 from contextlib import AbstractContextManager
-from typing import Callable, Iterator
+from typing import Callable
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from src.users.models import User
-from src.wallet.models import Wallet, Transaction
+from src.wallet.models import Wallet, Transaction, Block
 from sqlalchemy import func
 
 
 class WalletRequest:
 
-    def __init__(self, get_balance, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
+    def __init__(self, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
         self.session_factory = session_factory
-        self.get_balance = get_balance
 
     async def get_by_id(self, user_id: int) -> User:
         async with self.session_factory() as session:
@@ -65,7 +63,7 @@ class WalletRequest:
 
     async def save_transaction(self, value, address_from, address_to, txn_hash=None, fee=None):
 
-        from src.wallet.utils import create_transaction
+        from src.wallet.wallet_utils.transaction_create import create_transaction
         async with self.session_factory() as session:
             if txn_hash:
                 await self.change_balance(address_from)
@@ -94,7 +92,8 @@ class WalletRequest:
             return transaction
 
     async def save_balance(self, address: str):
-        balance = await self.get_balance(address)
+        from src.wallet.wallet_utils.wallet_balance import get_balance
+        balance = await get_balance(address)
         return balance
 
     async def change_balance(self, address: str):
@@ -112,3 +111,20 @@ class WalletRequest:
             else:
                 return None
 
+    async def last_block_save(self, block_number: int):
+        async with self.session_factory() as session:
+            result = await session.execute(select(Block))
+            last_block = result.scalar()
+            if last_block:
+                last_block.number = block_number
+            else:
+                last_block = Block(number=block_number)
+                session.add(last_block)
+
+            await session.commit()
+
+    async def get_last_block_from_base(self):
+        async with self.session_factory() as session:
+            result = await session.execute(select(Block))
+            last_block = result.scalar()
+            return last_block.number

@@ -2,10 +2,11 @@ from dependency_injector import containers, providers
 
 from src import config_db
 from src.database import Database
-from src.users.repository import UserRequest
 from src.wallet.repository import WalletRequest
 from src.wallet.services import WalletService
-from src.wallet.utils import get_balance
+from web3.middleware import geth_poa_middleware
+from web3 import Web3
+from src.wallet.config_wallet import api_infura
 
 
 class WalletContainer(containers.DeclarativeContainer):
@@ -16,7 +17,6 @@ class WalletContainer(containers.DeclarativeContainer):
     wallet_request = providers.Factory(
         WalletRequest,
         session_factory=db.provided.session,
-        get_balance=get_balance
     )
 
     wallet_service = providers.Factory(
@@ -24,3 +24,5 @@ class WalletContainer(containers.DeclarativeContainer):
         wallet_request=wallet_request
     )
 
+    w3 = Web3(Web3.HTTPProvider(api_infura))
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)

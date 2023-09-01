@@ -21,7 +21,7 @@ async def get_list(
     return await user_service.get_users()
 
 
-@router.get("/user/{user_id}/")
+@router.get("/id/{user_id}/")
 @inject
 async def get_by_id(
         user_id: int,

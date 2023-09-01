@@ -68,7 +68,7 @@ class UserRequest:
         async with self.session_factory() as session:
             result = await session.execute(select(User).where(User.email == user_data.email))
             user = result.scalar()
-            hashed_password = bcrypt_sha256.hash(user_data.password)
+            hashed_password = bcrypt_sha256.hash(user_data.password1)
             if user:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email уже используется")
             else:

@@ -1,5 +1,4 @@
-import asyncio
-
+import logging
 import uvicorn
 
 from fastapi import FastAPI
@@ -7,9 +6,8 @@ from propan.fastapi import RabbitRouter
 
 import src
 from src.api.containers import MainContainer
-# from src.api.rabbit_utils import router
 
-# from src.socketio import sockets
+logging.basicConfig(level=logging.INFO)
 
 router = RabbitRouter('amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost')
 
@@ -20,6 +18,7 @@ app = FastAPI(lifespan=router.lifespan_context)
 app.include_router(router)
 app.include_router(src.users.endpoints.router)
 app.include_router(src.wallet.endpoints.router)
+app.include_router(src.ibay.endpoints.router)
 
 
 @app.on_event("startup")

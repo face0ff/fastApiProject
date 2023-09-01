@@ -10,7 +10,7 @@ stop_all:
 api:
 	python src/api/main.py
 parser:
-	python src/parser/parser.py
+	python src/parser/parser_socket.py
 receiver:
 	python src/parser/receiver.py
 socket:
@@ -18,6 +18,6 @@ socket:
 client:
 	python src/wallet/consumer.py
 celery:
-	celery -A src.celery.celery worker --loglevel=info -Q get_wallet_list,wallet,save_result,transaction -B
+	celery -A src.celery.celery worker --loglevel=info -Q get_wallet_list,wallet,save_result,transaction,search_transaction -B --concurrency=1
 
 
