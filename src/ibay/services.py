@@ -1,5 +1,6 @@
 from src.ibay.models import Product
 from src.ibay.repository import ProductRequest, OrderRequest
+from src.ibay.schemas import Order
 
 
 class ProductService:
@@ -24,3 +25,6 @@ class OrderService:
 
     async def get_orders(self, email):
         return await self.requests.get_all(email)
+
+    async def create_order(self, order_data: dict, email:str) -> Order:
+        return await self.requests.add(order_data, email)

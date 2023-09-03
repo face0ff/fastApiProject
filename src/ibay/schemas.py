@@ -16,6 +16,7 @@ class Product(BaseModel):
 
 class Order(BaseModel):
     id: int
+    product_id: int
     address: str
 
     class Config:

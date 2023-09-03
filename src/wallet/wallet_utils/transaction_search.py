@@ -29,23 +29,29 @@ async def transaction_search(body: dict):
             params=params,
         )
         if response.status_code == 200:
+            await asyncio.sleep(1)
             result = response.json()
-            transaction = result['result'][0]
-            gas_used = int(transaction['receipt_gas_used'])
-            gas_price = int(transaction['gas_price'])
-            value = w3.from_wei(int(transaction['value']), 'ether')
-            fee = w3.from_wei(int(gas_used * gas_price), 'ether')
-            async with router.broker as broker:
-                body = {
-                    "txn_hash": transaction['hash'],
-                    "address_from": transaction['from_address'],
-                    "address_to": transaction['to_address'],
-                    "value": value,
-                    "fee": fee,
-                }
-                await broker.publish(body, queue="transaction_save")
+            if result['result']:
+                transaction = result['result'][0]
+                gas_used = int(transaction['receipt_gas_used'])
+                gas_price = int(transaction['gas_price'])
+                value = w3.from_wei(int(transaction['value']), 'ether')
+                fee = w3.from_wei(int(gas_used * gas_price), 'ether')
+                async with router.broker as broker:
+                    body = {
+                        "txn_hash": transaction['hash'],
+                        "address_from": transaction['from_address'],
+                        "address_to": transaction['to_address'],
+                        "value": value,
+                        "fee": fee,
+                    }
+                    await broker.publish(body, queue="transaction_save")
+            else:
+                loguru.logger.critical("Попытаемся еще разочек")
+                return False
         else:
             print("Request failed:", response.text)
+            return False
 
 
 async def all_lost_block_in_base(last_block_number) -> object:

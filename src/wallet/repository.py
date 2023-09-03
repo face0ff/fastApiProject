@@ -3,7 +3,10 @@ from contextlib import AbstractContextManager
 from typing import Callable
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
+
+from src.ibay.models import Order
 from src.users.models import User
+from src.wallet.config_wallet import router
 from src.wallet.models import Wallet, Transaction, Block
 from sqlalchemy import func
 
@@ -75,7 +78,26 @@ class WalletRequest:
                                               txn_hash=txn_hash, status='Success', fee=fee,
                                               value=value)
                 else:
+                    result = await session.execute(select(Order).where(Order.transaction_id == transaction.id))
+                    order = result.scalars().first()
+                    if order:
+                        if not order.refund:
+                            async with router.broker as broker:
+                                body = {
+                                    'result': "Success",
+                                    'transaction_id': transaction.id
+                                }
+                                await broker.publish(body, queue="transaction_success")
+                        else:
+                            async with router.broker as broker:
+                                body = {
+                                    'result': "Refund",
+                                    'transaction_id': transaction.id
+                                }
+                                await broker.publish(body, queue="transaction_success")
+
                     transaction.status = "Success"
+                    
             else:
                 try:
                     result = await session.execute(select(Wallet).where(Wallet.address == address_from))

@@ -54,3 +54,13 @@ async def get_list(
         order_service: OrderService = Depends(Provide[ProductContainer.order_service]),
 ):
     return await order_service.get_orders(email)
+
+@router.post("/order/add/", status_code=status.HTTP_201_CREATED)
+@inject
+async def add(
+        order_data: schemas.Order,
+        email: str = Depends(get_token_from_cookie),
+        order_service: OrderService = Depends(Provide[ProductContainer.order_service]),
+):
+
+    return await order_service.create_order(order_data, email)

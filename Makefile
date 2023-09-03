@@ -17,7 +17,9 @@ socket:
 	python src/socketio/sockets.py
 client:
 	python src/wallet/consumer.py
+ibay:
+	python src/ibay/consumer.py
 celery:
-	celery -A src.celery.celery worker --loglevel=info -Q get_wallet_list,wallet,save_result,transaction,search_transaction -B --concurrency=1
+	celery -A src.celery.celery worker --loglevel=info -Q get_wallet_list,wallet,save_result,transaction,search_transaction,check_delivery -B --concurrency=2
 
 

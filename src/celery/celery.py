@@ -5,7 +5,7 @@ app = Celery(
     'src.celery',
     broker_url='amqp://rabbit-user:1542@localhost:5672/rabbit-wallet-vhost',
     result_backend='rpc://',
-    include=['src.wallet.tasks']
+    include=['src.wallet.tasks', 'src.ibay.tasks']
 )
 
 app.conf.timezone = 'UTC'
