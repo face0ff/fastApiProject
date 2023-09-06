@@ -86,18 +86,16 @@ async def transaction_ws_search_service(body: int):
         wallet_list = await redis.get('wallet_list')
         wallet_list = json.loads(wallet_list)
 
-    addresses = set()  # Множество для хранения уникальных адресов
+    addresses = set()
     for tx_hash in transactions_block_list:
 
         sender_address = tx_hash['from']
         recipient_address = tx_hash.get('to', None)
 
-        # Добавляем адреса в множество
         addresses.add(sender_address)
         if recipient_address:
             addresses.add(recipient_address)
 
-    # Преобразуем множество обратно в список
     unique_addresses = list(addresses)
 
     loguru.logger.info(f'Block number={block_number}, unique_addresses={unique_addresses}, wallet_list= {wallet_list}')

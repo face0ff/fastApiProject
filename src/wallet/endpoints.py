@@ -44,9 +44,16 @@ async def balance(
     return await wallet_service.show_balance(address)
 
 
-@router.get("/wallets")
+@router.get("/my/")
 @inject
 async def wallets(
         email: str = Depends(get_token_from_cookie),
         wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.show_wallets(email)
+
+@router.get("/my/transactions/")
+@inject
+async def transactions(
+        email: str = Depends(get_token_from_cookie),
+        wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
+    return await wallet_service.show_all_user_transactions(email)

@@ -30,7 +30,6 @@ async def result_handler(body):
         await request.change_status(body)
 
 
-
 async def main():
     await router.broker.start()
     while True:

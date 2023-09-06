@@ -1,12 +1,12 @@
 """Модуль для работы с репозиториями пользователей."""
 from contextlib import AbstractContextManager
-
 import loguru
-from fastapi import HTTPException, status, Response
+from fastapi import HTTPException, status
 from typing import Callable, Iterator
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
-
+from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 from src.ibay.models import Product, Order
 from src.users.models import User
 from src.wallet.containers import WalletContainer
@@ -51,13 +51,24 @@ class OrderRequest:
     def __init__(self, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
         self.session_factory = session_factory
 
-    async def get_all(self, email) -> Iterator[Order]:
-        print(email)
-        """Получение всех ордеров."""
+    async def get_all(self, email):
         async with self.session_factory() as session:
-            query = select(Order).join(User).filter(User.email == email)
+            query = (
+                select(Order).join(User).options(
+                    joinedload(Order.product),
+                    joinedload(Order.transaction),
+                )
+                .filter(User.email == email)
+            )
             result = await session.execute(query)
             return result.scalars().all()
+
+    async def get_old_delivery(self) -> Order:
+
+        async with self.session_factory() as session:
+            query = select(Order).filter(Order.status == 'Delivery').order_by(desc(Order.date)).limit(1)
+            result = await session.execute(query)
+            return result.scalars().first()
 
     async def add(self, order_data: dict, email) -> Order:
         async with self.session_factory() as session:

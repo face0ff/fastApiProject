@@ -9,6 +9,7 @@ from src.users.models import User
 from src.wallet.config_wallet import router
 from src.wallet.models import Wallet, Transaction, Block
 from sqlalchemy import func
+import loguru
 
 
 class WalletRequest:
@@ -42,6 +43,20 @@ class WalletRequest:
             print(wallet_list)
             wallet_addresses = [wallet.address for wallet in wallet_list]
             return wallet_addresses
+
+    async def get_all_user_transactions(self, email):
+
+        user = await self.get_by_email(email)
+
+        async with self.session_factory() as session:
+            query = select(Transaction).join(Wallet, ((Transaction.address_from == Wallet.address) | (
+                    Transaction.address_to == Wallet.address))).filter(Wallet.user_id == user.id)
+            transactions_list = await session.execute(query)
+            transactions_list = transactions_list.scalars().all()
+
+            loguru.logger.info(f"Transactions for user {email}: {transactions_list}")
+
+            return transactions_list
 
     async def get_all_wallets(self):
 
@@ -97,7 +112,7 @@ class WalletRequest:
                                 await broker.publish(body, queue="transaction_success")
 
                     transaction.status = "Success"
-                    
+
             else:
                 try:
                     result = await session.execute(select(Wallet).where(Wallet.address == address_from))

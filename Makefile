@@ -20,6 +20,6 @@ client:
 ibay:
 	python src/ibay/consumer.py
 celery:
-	celery -A src.celery.celery worker --loglevel=info -Q get_wallet_list,wallet,save_result,transaction,search_transaction,check_delivery -B --concurrency=2
+	celery -A src.celery.celery worker --loglevel=info -Q periodic,permission,wallet,save_result,transaction,search_transaction,check_delivery -B --concurrency=4
 
 

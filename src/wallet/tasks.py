@@ -16,7 +16,7 @@ def search_transaction_in_block_task(body):
 #     loop.run_until_complete(wallet_search.wallets_search(body))
 
 
-@app.task(autoretry_for=(Exception,), retry_backoff=True, retry_backoff_max=3600)
+@app.task(autoretry_for=(Exception,), retry_backoff=True, retry_backoff_max=10, max_retries=5)
 def get_transaction_search_task(body):
     loop = asyncio.get_event_loop()
     result = loop.run_until_complete(transaction_search.transaction_search(body))

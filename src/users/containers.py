@@ -5,6 +5,7 @@ from dependency_injector import containers, providers
 
 from src import config_db
 from src.database import Database
+from src.users.permissions import Permissions
 from src.users.repository import UserRequest
 from src.users.services import UserService
 from src.users.utils import send_registration_email
@@ -25,4 +26,9 @@ class UserContainer(containers.DeclarativeContainer):
     user_service = providers.Factory(
         UserService,
         user_request=user_request,
+    )
+
+    user_permission = providers.Factory(
+        Permissions,
+        session_factory=db.provided.session
     )

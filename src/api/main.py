@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import uvicorn
 
@@ -6,6 +7,8 @@ from propan.fastapi import RabbitRouter
 
 import src
 from src.api.containers import MainContainer
+from src.api.consumer import main as listener_main
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,6 +32,8 @@ async def startup():
     db = container.db()
     await db.create_database()
     await router.broker.start()
+    asyncio.create_task(listener_main())
+
 
 
 @app.on_event("shutdown")

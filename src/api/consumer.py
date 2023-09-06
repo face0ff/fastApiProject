@@ -1,9 +1,9 @@
 import asyncio
-
+import loguru
+from src.users.tasks import save_chat_task
 from src.wallet.config_wallet import router
 from src.wallet.tasks import (get_transaction_search_task, save_transaction_task,
                               search_transaction_in_block_task)
-
 
 
 @router.broker.handle(queue="latest_block_number")
@@ -35,6 +35,12 @@ async def result_handler(body):
 # @router.broker.handle(queue="transactions_ws_list")
 # async def list_transactions_handler(body):
 #     get_wallet_search_task.apply_async(args=[body], queue='wallet')
+
+
+@router.broker.handle(queue="save_chat_permission")
+async def save_chat_handler(email):
+    loguru.logger.critical('CONSUMER')
+    save_chat_task.apply_async(args=[email], queue='permission', countdown=60)
 
 
 async def main():

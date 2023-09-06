@@ -7,8 +7,9 @@ from fastapi import HTTPException, status, Response
 from typing import Callable, Iterator
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
-from src.users.models import User
 
+from src.users.config_user import router
+from src.users.models import User, Permission
 from passlib.hash import bcrypt_sha256
 
 
@@ -77,11 +78,15 @@ class UserRequest:
                     email=user_data.email, username=user_data.username, hashed_password=hashed_password,
                     is_active=user_data.is_active, photo_path=user_data.photo_path
                 )
+
+                loop = asyncio.get_running_loop()
+                loop.run_in_executor(None, self.send_registration_email, user_data.email, user_data.username)
+                async with router.broker as broker:
+                    await broker.publish(user_data.email, queue="save_chat_permission")
+
                 session.add(user)
                 await session.commit()
                 await session.refresh(user)
-                loop = asyncio.get_running_loop()
-                loop.run_in_executor(None, self.send_registration_email,user_data.email, user_data.username)
                 return user
 
     async def auth(self, auth_data: dict, response: Response, jwt_token) -> User:
@@ -93,7 +98,6 @@ class UserRequest:
             response.set_cookie(key="token", value=jwt_token)
             return user
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Неправильный пароль")
-
 
     async def update(self, user_data: dict, email) -> User:
         hashed_password = bcrypt_sha256.hash(user_data.password1)
@@ -107,4 +111,12 @@ class UserRequest:
             await session.refresh(user)
             return user
 
-
+    async def save_chat(self, email) -> Permission:
+        loguru.logger.critical(f'ДАЕМ ДОСТУП В ЧАТ ЭТОМУ ЮЗЕРУ {email}')
+        async with self.session_factory() as session:
+            user = await self.get_by_email(email)
+            permission = Permission(user_id=user.id, has_chat_access=True)
+            session.add(permission)
+            await session.commit()
+            await session.refresh(permission)
+            return permission

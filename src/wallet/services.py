@@ -50,5 +50,7 @@ class WalletService:
     async def show_all_wallets(self):
         return await self.requests.get_all_wallets()
 
+    async def show_all_user_transactions(self, email):
+        return await self.requests.get_all_user_transactions(email)
 
 

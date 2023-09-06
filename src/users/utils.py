@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from emails import Message
 
+
 load_dotenv()
 
 

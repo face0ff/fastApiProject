@@ -16,5 +16,15 @@ class User(Base):
 
     wallet = relationship("Wallet", back_populates="user")
     order = relationship("Order", back_populates="user")
+    permission = relationship('Permission', back_populates='user')
+    # message = relationship("Message", back_populates="user")
 
 
+class Permission(Base):
+
+    __tablename__ = "permissions"
+    id = Column(Integer, primary_key=True)
+    has_chat_access = Column(Boolean, default=False)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    user = relationship('User', back_populates='permission')

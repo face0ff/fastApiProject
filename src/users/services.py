@@ -23,6 +23,7 @@ class UserService:
         return await self.requests.get_by_id(user_id)
 
     async def create_user(self, user_data: dict) -> User:
+
         return await self.requests.add(user_data)
 
     async def auth_user(self, auth_data: dict, request, response) -> User:
