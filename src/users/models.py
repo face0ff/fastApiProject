@@ -1,5 +1,7 @@
 from sqlalchemy import Column, String, Boolean, Integer, DateTime, DECIMAL, ForeignKey
 from sqlalchemy.orm import relationship
+
+from src.chat.models import Message
 from src.database import Base
 
 
@@ -17,7 +19,7 @@ class User(Base):
     wallet = relationship("Wallet", back_populates="user")
     order = relationship("Order", back_populates="user")
     permission = relationship('Permission', back_populates='user')
-    # message = relationship("Message", back_populates="user")
+    message = relationship("Message", back_populates="user")
 
 
 class Permission(Base):

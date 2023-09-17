@@ -7,7 +7,7 @@ from dependency_injector.wiring import inject, Provide
 from src.users import schemas
 from src.users.containers import UserContainer
 from src.users.services import UserService
-from src.utils.get_token_from_cookie import get_token_from_cookie
+from src.utils.get_token_from_cookie import get_email_from_cookie
 
 router = APIRouter(prefix="/users", tags=['Users'])
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/users", tags=['Users'])
 @router.get("/")
 @inject
 async def get_list(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
     return await user_service.get_users()
@@ -60,7 +60,7 @@ async def auth(
 @inject
 async def edit_profile(
         user_data: schemas.Profile,
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         user_service: UserService = Depends(Provide[UserContainer.user_service]),
 ):
     if user_data.password1 != user_data.password2:
@@ -71,7 +71,7 @@ async def edit_profile(
 @router.get("/profile/", status_code=status.HTTP_200_OK)
 @inject
 async def profile(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         user_service: UserService = Depends(Provide[UserContainer.user_service])
 ):
     return await user_service.get_profile(email)
@@ -81,7 +81,7 @@ async def profile(
 @inject
 async def logout(
         response: Response,
-        email: str = Depends(get_token_from_cookie)):
+        email: str = Depends(get_email_from_cookie)):
     response.delete_cookie(key="token")  # Удалить куки с токеном
     return {"message": "Пользователь успешно вышел"}
 

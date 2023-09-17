@@ -29,8 +29,17 @@ propan = {extras = ["async-rabbit"], version = "^0.1.5.18"}
 python-socketio = {extras = ["asyncio-client"], version = "^5.8.0"}
 aioredis = "^2.0.1"
 redis = "^5.0.0"
+pytest = "^7.4.2"
+pytest-asyncio = "^0.21.1"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".", "src"
+]
+
+asyncio_mode="auto"

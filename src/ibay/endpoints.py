@@ -6,7 +6,7 @@ from dependency_injector.wiring import inject, Provide
 from src.ibay import schemas
 from src.ibay.containers import ProductContainer
 from src.ibay.services import ProductService, OrderService
-from src.utils.get_token_from_cookie import get_token_from_cookie
+from src.utils.get_token_from_cookie import get_email_from_cookie
 
 router = APIRouter(prefix="/products", tags=['Products'])
 
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/products", tags=['Products'])
 @router.get("/")
 @inject
 async def get_list(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         product_service: ProductService = Depends(Provide[ProductContainer.product_service]),
 ):
     return await product_service.get_products()
@@ -27,7 +27,7 @@ async def get_list(
 @inject
 async def get_by_id(
         product_id: int,
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         product_service: ProductService = Depends(Provide[ProductContainer.product_service]),
 ):
     try:
@@ -40,7 +40,7 @@ async def get_by_id(
 @inject
 async def add(
         product_data: schemas.Product,
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         product_service: ProductService = Depends(Provide[ProductContainer.product_service]),
 ):
 
@@ -50,7 +50,7 @@ async def add(
 @router.get("/order")
 @inject
 async def get_list(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         order_service: OrderService = Depends(Provide[ProductContainer.order_service]),
 ):
     return await order_service.get_orders(email)
@@ -59,7 +59,7 @@ async def get_list(
 @inject
 async def add(
         order_data: schemas.Order,
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         order_service: OrderService = Depends(Provide[ProductContainer.order_service]),
 ):
 

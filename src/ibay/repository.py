@@ -41,8 +41,8 @@ class ProductRequest:
                 img=product_data.img
             )
             session.add(product)
-            await session.commit()
-            await session.refresh(product)
+            # await session.commit()
+            # await session.refresh(product)
             return product
 
 

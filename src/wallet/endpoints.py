@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from dependency_injector.wiring import inject, Provide
-from src.utils.get_token_from_cookie import get_token_from_cookie
+from src.utils.get_token_from_cookie import get_email_from_cookie
 from src.wallet.containers import WalletContainer
 
 from src.wallet.services import WalletService
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/wallets", tags=['Wallets'])
 @router.post("/create/")
 @inject
 async def create(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.create_wallet(email)
 
@@ -21,7 +21,7 @@ async def create(
 @inject
 async def import_key(
         key,
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.import_wallet(email, key)
 
@@ -47,13 +47,13 @@ async def balance(
 @router.get("/my/")
 @inject
 async def wallets(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.show_wallets(email)
 
 @router.get("/my/transactions/")
 @inject
 async def transactions(
-        email: str = Depends(get_token_from_cookie),
+        email: str = Depends(get_email_from_cookie),
         wallet_service: WalletService = Depends(Provide[WalletContainer.wallet_service])):
     return await wallet_service.show_all_user_transactions(email)
